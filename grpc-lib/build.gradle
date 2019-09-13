@@ -1,0 +1,51 @@
+springBoot {
+    buildInfo()
+}
+
+bootJar.enabled = false
+jar.enabled = true
+
+apply plugin: 'com.google.protobuf'
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
+
+dependencies {
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation 'io.github.microutils:kotlin-logging'
+
+    implementation "com.google.api.grpc:googleapis-common-protos"
+    implementation "javax.annotation:javax.annotation-api"
+    implementation "io.grpc:grpc-netty"
+    implementation "io.grpc:grpc-protobuf"
+    implementation "io.grpc:grpc-stub"
+
+    implementation "org.springframework.boot:spring-boot"
+    implementation "org.springframework:spring-context"
+
+    implementation "com.salesforce.servicelibs:grpc-spring"
+    implementation "com.salesforce.servicelibs:reactor-grpc-stub"
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.6.1'
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+        reactor {
+            artifact = "com.salesforce.servicelibs:reactor-grpc:0.9.0:jdk8@jar"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+            reactor {}
+        }
+    }
+}

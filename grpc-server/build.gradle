@@ -1,0 +1,31 @@
+springBoot {
+    buildInfo()
+}
+
+apply plugin: 'com.google.protobuf'
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation 'io.github.microutils:kotlin-logging'
+
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "org.springframework.boot:spring-boot-actuator"
+
+    implementation "com.salesforce.servicelibs:grpc-spring"
+    implementation "com.salesforce.servicelibs:reactor-grpc-stub"
+
+    implementation "io.grpc:grpc-services"
+    implementation "io.grpc:grpc-netty"
+
+    implementation "com.google.api.grpc:googleapis-common-protos"
+
+    implementation project(":domain")
+    implementation project(":grpc-lib")
+}
