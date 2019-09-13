@@ -1,0 +1,8 @@
+rootProject.name = 'apiserver_spring'
+
+include 'domain'
+include 'grpc-lib'
+include 'grpc-server'
+
+include 'rest-lib'
+include 'rest-server'

@@ -1,0 +1,5 @@
+{
+  "apiPackage" : "com.example.apiserver.swagger",
+  "modelPackage" : "com.example.apiserver.swagger.model",
+  "dateLibrary" : "java8-localdatetime"
+}

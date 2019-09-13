@@ -1,0 +1,34 @@
+springBoot {
+    buildInfo()
+}
+
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
+
+bootJar.enabled = false
+jar.enabled = true
+
+dependencies {
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation 'io.github.microutils:kotlin-logging'
+    implementation "ch.qos.logback:logback-classic"
+
+    implementation "org.springframework.boot:spring-boot"
+    implementation "org.springframework:spring-context"
+
+    // test
+    testImplementation "org.spekframework.spek2:spek-dsl-jvm"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5"
+}
+
+// setup the test task
+test {
+    useJUnitPlatform {
+        includeEngines 'spek2'
+    }
+}

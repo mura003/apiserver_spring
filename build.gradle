@@ -1,0 +1,177 @@
+buildscript {
+    ext {
+        kotlinVersion = '1.3.21'
+        kotlinLoggingVersion = '1.6.25'
+
+        grpcVersion = '1.19.0'
+        javaxAnnotationApiVersion = '1.3.2'
+        kubernetesClientJavaVersion = '3.0.0'
+        googleGsonVersion = '2.8.5'
+        gsonfireVersion = '1.8.3'
+
+        // spring
+        springBootVersion = '2.1.2.RELEASE'
+        springVersion = '5.1.5.RELEASE'
+        logBackClassicVersion = '1.2.3'
+        googleGsonVersion = '2.8.5'
+        gsonfireVersion = '1.8.3'
+
+        // swagger
+        downloadPluginVersion = '3.4.3'
+        swaggerAnnotationsVersion = '1.5.21'
+        swaggerCodegenVersion = '2.4.1'
+
+        // jackson
+        jacksonCoreVersion = '2.9.8'
+
+        // test
+        spekVersion = '2.0.2'
+        jupiterApiVersion = '5.5.0-M1'
+
+    }
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+        jcenter()
+        maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+
+        classpath("io.spring.gradle:propdeps-plugin:0.0.9.RELEASE")
+
+        classpath 'com.bmuschko:gradle-docker-plugin:3.2.8'
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.16"
+
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+        classpath "gradle.plugin.org.hidetake:gradle-swagger-generator-plugin:2.16.0"
+
+        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.5")
+    }
+}
+
+wrapper.gradleVersion = '5.1.1'
+
+allprojects {
+    group 'com.example'
+    version = rootProject.file('VERSION').text.trim()
+}
+
+subprojects {
+    apply plugin: 'kotlin'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'org.jetbrains.dokka'
+
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'kotlin-spring'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    dependencyManagement {
+        imports {
+
+            mavenBom "org.springframework.cloud:spring-cloud-stream-dependencies:Elmhurst.RELEASE"
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.RELEASE"
+
+        }
+
+        dependencies {
+            // kotlin
+            dependency "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+            dependency "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+            dependency "io.github.microutils:kotlin-logging:${kotlinLoggingVersion}"
+
+            // Spring
+            dependency "org.springframework:spring-context:${springVersion}"
+            dependency "org.springframework:spring-web:${springVersion}"
+            dependency "io.springfox:springfox-swagger2:2.9.2"
+
+
+            // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
+            dependency "javax.annotation:javax.annotation-api:${javaxAnnotationApiVersion}"
+
+            dependency "io.kubernetes:client-java:${kubernetesClientJavaVersion}"
+            dependency "com.google.code.gson:gson:${googleGsonVersion}"
+            // https://mvnrepository.com/artifact/io.gsonfire/gson-fire
+            dependency "io.gsonfire:gson-fire:${gsonfireVersion}"
+
+            // swagger
+            dependency "io.swagger:swagger-annotations:${swaggerAnnotationsVersion}"
+            dependency "io.swagger:swagger-codegen-cli:${swaggerCodegenVersion}"
+
+            // jackson
+            // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+            dependency "com.fasterxml.jackson.core:jackson-databind:${jacksonCoreVersion}"
+
+            dependency "com.fasterxml.jackson.core:jackson-core:${jacksonCoreVersion}"
+
+            dependency "javax.servlet:javax.servlet-api:4.0.1"
+
+            dependency "org.slf4j:slf4j-api:1.7.28"
+
+            dependency "javax.validation:validation-api:2.0.1.Final"
+
+            dependency "javax.xml.bind:jaxb-api:2.3.1"
+
+            // grpc
+            dependency "io.grpc:grpc-protobuf:${grpcVersion}"
+            dependency "io.grpc:grpc-stub:${grpcVersion}"
+            dependency "io.grpc:grpc-services:${grpcVersion}"
+            dependency "io.grpc:grpc-netty:${grpcVersion}"
+            dependency "io.grpc:grpc-okhttp:${grpcVersion}"
+            dependency "com.google.api.grpc:googleapis-common-protos:0.0.3"
+            dependency "com.salesforce.servicelibs:reactive-grpc:0.8.1"
+            dependency "com.salesforce.servicelibs:reactor-grpc-stub:0.8.1"
+            dependency "com.salesforce.servicelibs:grpc-spring:0.8.0"
+
+            // test
+            dependency "org.spekframework.spek2:spek-dsl-jvm:${spekVersion}"
+            dependency "org.spekframework.spek2:spek-runner-junit5:${spekVersion}"
+            dependency "org.junit.jupiter:junit-jupiter-api:${jupiterApiVersion}"
+        }
+    }
+
+    dokka {
+        outputFormat = 'javadoc'
+    }
+
+    configurations {
+        all { resolutionStrategy.cacheChangingModulesFor 0, 'seconds' }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives jar
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    jar {
+        manifest {
+            attributes("group-id": project.group)
+            attributes("artifact-id": project.name)
+            attributes("version": version)
+            attributes("built-at": new Date().format("yyyy-MM-dd'T'HH:mm:ss"))
+        }
+
+    }
+}

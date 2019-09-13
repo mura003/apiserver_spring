@@ -1,0 +1,125 @@
+swagger: '2.0'
+
+################################################################################
+#                              API Information                                 #
+################################################################################
+info:
+  title: Item API
+  description: 商品マスタAPI。
+  version: "0.0.1"
+host: localhost:8080
+schemes:
+  - http
+basePath: /v1
+produces:
+  - application/json
+paths:
+  '/items/':
+    get:
+      summary: 商品一覧取得
+      description: 商品の一覧を返す
+      operationId: listItem
+      responses:
+        200:
+          description: 成功
+          schema:
+            $ref: '#/definitions/ItemListResponse'
+    post:
+      summary: 商品登録
+      description: 商品を登録する
+      operationId: createItem
+      parameters:
+        - name: item
+          in: body
+          schema:
+            $ref: '#/definitions/ItemRequest'
+          required: true
+      responses:
+        201:
+          description: 成功
+          schema:
+            $ref: '#/definitions/ItemResponse'
+
+  '/items/{itemId}/':
+    get:
+      summary: 商品取得
+      description: 指定した商品を返す。
+      operationId: getItem
+      parameters:
+        - name: itemId
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: 成功
+          schema:
+            $ref: '#/definitions/ItemResponse'
+    put:
+      summary: 商品更新
+      description: 指定した商品を更新する。
+      operationId: updateItem
+      parameters:
+        - name: itemId
+          in: path
+          type: string
+          required: true
+        - name: item
+          in: body
+          schema:
+            $ref: '#/definitions/ItemRequest'
+      responses:
+        200:
+          description: 成功
+          schema:
+            $ref: '#/definitions/ItemResponse'
+    delete:
+      summary: 商品削除
+      description: 指定した商品を削除する。
+      operationId: deleteItem
+      parameters:
+        - name: itemId
+          in: path
+          type: string
+          required: true
+      responses:
+        204:
+          description: 成功
+
+################################################################################
+#                                 Definitions                                  #
+################################################################################
+definitions:
+  ItemRequest:
+    description: 商品リクエスト
+    type: object
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+  ItemResponse:
+    description: 商品
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+  ItemListResponse:
+    description: 商品リスト
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/ItemResponse'
+

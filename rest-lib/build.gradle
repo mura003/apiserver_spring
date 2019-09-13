@@ -1,0 +1,75 @@
+springBoot {
+    buildInfo()
+}
+
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
+
+bootJar.enabled = false
+jar.enabled = true
+
+
+project.ext {
+    swaggerConfigFile = file("${rootDir.path}/rest-config/src/main/resources/swagger-config.json")
+    swaggerSpecFile   = file("${rootDir.path}/rest-config/src/main/resources/swagger-spec.yaml")
+    swaggerGeneratedSrc = file("build/generated")
+}
+
+task cleanGenratedCode {
+    doLast {
+        swaggerGeneratedSrc.deleteDir()
+        swaggerGeneratedSrc.mkdirs()
+    }
+}
+
+task removeDefaultController {
+    doLast {
+        project.delete file("${swaggerGeneratedSrc.path}/src/main/java/com/example/apiserver/swagger/").listFiles().findAll{
+            it.name.startsWith('ItemsApiController')
+        }
+    }
+}
+
+
+dependencies {
+
+    apply plugin: "org.hidetake.swagger.generator"
+
+    implementation "javax.annotation:javax.annotation-api"
+    implementation "javax.servlet:javax.servlet-api"
+    implementation "com.fasterxml.jackson.core:jackson-core"
+    implementation "com.fasterxml.jackson.core:jackson-databind"
+
+    implementation "org.springframework.boot:spring-boot"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework:spring-context"
+    implementation "org.springframework:spring-web"
+    implementation "io.springfox:springfox-swagger2"
+
+    implementation "org.slf4j:slf4j-api"
+    implementation "javax.validation:validation-api"
+    implementation "javax.xml.bind:jaxb-api"
+
+    // swagger
+    implementation "io.swagger:swagger-annotations"
+    swaggerCodegen "io.swagger:swagger-codegen-cli"
+
+    sourceSets {
+        main.java.srcDir file("${swaggerGeneratedSrc.path}/src/main/java")
+        test.java.srcDir file("${swaggerGeneratedSrc.path}/src/main/java")
+    }
+
+    generateSwaggerCode {
+        language = "spring"
+        outputDir = swaggerGeneratedSrc
+        inputFile = file("${swaggerSpecFile}")
+        configFile = file("${swaggerConfigFile}")
+        components = ['apis', 'models', 'supportingFiles']
+    }
+
+    generateSwaggerCode.dependsOn cleanGenratedCode
+    removeDefaultController.dependsOn generateSwaggerCode
+    compileKotlin.dependsOn removeDefaultController
+}
